@@ -12,7 +12,7 @@ library(caret)
 #library(e1071)
 library(PresenceAbsence)
 library(FSelector)
-
+library(corrgram)
 
 #source("H:\\projects\\data_challenge_2017\\code\\.R")
 source("H:\\Work\\R\\DataWranglingFunctions.R")
@@ -72,33 +72,40 @@ print(a)
 #p + theme(axis.text.x = element_text(angle=90, hjust=1))
 
 
+### correlations of the continuous data
+corrgram(dt1, order=TRUE, lower.panel=panel.ellipse,
+         upper.panel=panel.pts, text.panel=panel.txt,
+         diag.panel=panel.minmax, 
+         main="Simulated Data in PC2/PC1 Order")
+
+
 
 ################################################################################
 ################################ Model Learning ################################
 ################################################################################
-vModelReg <- funcCrossValReg(dtIn=dt1.imp, 
+vModelReg <- funcCrossValReg(dtIn=dt1, 
                              vDependentVars=vDependentVars,
-                             vPredictorVars=vPredictorVars[!(vPredictorVars %in% vPostOpVars)],
+                             vPredictorVars=vPredictorVars,
                              nFolds=10,
                              bOversample=T)
-vModelBN <- funcCrossValBN(dtIn=dt1F.imp, 
-                           vDependentVars=vDependentVars,
-                           vPredictorVars=vPredictorVarsBN,
-                           nFolds=10,
-                           bOversample=T)
-vModelSVM <- funcCrossValSVM(dtIn=dt1N.imp, 
+#vModelBN <- funcCrossValBN(dtIn=dt1F.imp, 
+#                           vDependentVars=vDependentVars,
+#                           vPredictorVars=vPredictorVarsBN,
+#                           nFolds=10,
+#                           bOversample=T)
+vModelSVM <- funcCrossValSVM(dtIn=dt1N, 
                              vDependentVars=vDependentVars,
-                             vPredictorVars=vPredictorVarsSVM[!(vPredictorVarsSVM %in% vPostOpVarsSVM)],
+                             vPredictorVars=vPredictorVarsSVM,
                              nFolds=10,
                              bOversample=T)
-vModelRF <- funcCrossValRF(dtIn=dt1.imp, 
+vModelRF <- funcCrossValRF(dtIn=dt1, 
                            vDependentVars=vDependentVars,
-                           vPredictorVars=vPredictorVars[!(vPredictorVars %in% vPostOpVars)],
+                           vPredictorVars=vPredictorVars,
                            nFolds=10,
                            bOversample=T)
-vModelGBM <- funcCrossValGBM(dtIn=dt1.imp, 
+vModelGBM <- funcCrossValGBM(dtIn=dt1, 
                              vDependentVars=vDependentVars,
-                             vPredictorVars=vPredictorVars[!(vPredictorVars %in% vPostOpVars)],
+                             vPredictorVars=vPredictorVars,
                              nFolds=10,
                              bOversample=T)
 
