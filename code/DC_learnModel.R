@@ -1,25 +1,26 @@
 rm(list=ls(all=TRUE))
 library(data.table)
-#library(survival)
-#library(DMwR)
+library(survival)
+library(DMwR)
 library(glmnet)
 library(caret)
-#library(ranger)
-#library(survivalROC)
-#library(gbm)
-#library(caTools)
+library(ranger)
+library(survivalROC)
+library(gbm)
+library(caTools)
 #library(bnlearn)
-#library(e1071)
+library(e1071)
 library(PresenceAbsence)
 library(FSelector)
 library(corrgram)
 
-#source("H:\\projects\\data_challenge_2017\\code\\.R")
+source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R")
 source("H:\\Work\\R\\DataWranglingFunctions.R")
 
 
-dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
 
+dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
+dt1<-dt1[,-c("ID","V1")]
 
 ################################################################################
 ################################## Variables ###################################
@@ -31,6 +32,11 @@ vPredictorVars <- c("A","W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11"
 vFac <- c("A","W1","W2","W3","W4","W5","W6")
 vNum <- c("W7","W8","W9","W10","W11","W12","W13","W14","W15","W16","W17","W18",
           "W19","W20","W21","W22","W23","W24","W25")
+vPredictorVarsSVM <- c("A","W5","W6","W7","W8","W9","W10","W11","W12","W13",
+                       "W14","W15","W16","W17","W18","W19","W20","W21","W22",
+                       "W23","W24","W25","W1.A","W1.B","W1.C","W1.D","W2.A",
+                       "W2.B","W2.C","W2.D","W3.A","W3.B","W3.C","W4.A",
+                       "W4.B","W4.C")
 
 ### Factorize data
 for (kVar in vFac) {
@@ -87,7 +93,7 @@ vModelReg <- funcCrossValReg(dtIn=dt1,
                              vDependentVars=vDependentVars,
                              vPredictorVars=vPredictorVars,
                              nFolds=10,
-                             bOversample=T)
+                             bOversample=F)
 #vModelBN <- funcCrossValBN(dtIn=dt1F.imp, 
 #                           vDependentVars=vDependentVars,
 #                           vPredictorVars=vPredictorVarsBN,
@@ -97,29 +103,29 @@ vModelSVM <- funcCrossValSVM(dtIn=dt1N,
                              vDependentVars=vDependentVars,
                              vPredictorVars=vPredictorVarsSVM,
                              nFolds=10,
-                             bOversample=T)
+                             bOversample=F)
 vModelRF <- funcCrossValRF(dtIn=dt1, 
                            vDependentVars=vDependentVars,
                            vPredictorVars=vPredictorVars,
                            nFolds=10,
-                           bOversample=T)
+                           bOversample=F)
 vModelGBM <- funcCrossValGBM(dtIn=dt1, 
                              vDependentVars=vDependentVars,
                              vPredictorVars=vPredictorVars,
                              nFolds=10,
-                             bOversample=T)
+                             bOversample=F)
 
 
 
 ################################################################################
 ############################### Model Evaluation ###############################
 ################################################################################
-vModelBN$predicted <- vModelBN$probabilities
+#vModelBN$predicted <- vModelBN$probabilities
 vModelRF$predicted <- vModelRF$probabilities
 vModelSVM$predicted <- vModelSVM$probabilities
 
 vReg.Stat <- funcStatOutput(listModel=vModelReg,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.748431)
-vBN.Stat <- funcStatOutput(listModel=vModelBN,valPositive=2,valNegative=1,bNumeric=T,threshType=3)
+#vBN.Stat <- funcStatOutput(listModel=vModelBN,valPositive=2,valNegative=1,bNumeric=T,threshType=3)
 vSVM.Stat <- funcStatOutput(listModel=vModelSVM,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.5209497)
 vRF.Stat <- funcStatOutput(listModel=vModelRF,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.5298393)
 vGBM.Stat <- funcStatOutput(listModel=vModelGBM,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=1.513645)
