@@ -14,12 +14,15 @@ library(PresenceAbsence)
 library(FSelector)
 library(corrgram)
 
-source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R")
-source("H:\\Work\\R\\DataWranglingFunctions.R")
+#source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R")
+#source("H:\\Work\\R\\DataWranglingFunctions.R")
+source("E:\\Code\\data_challenge_2017\\code\\DC_learnFunctions.R")
+source("E:\\Work\\R\\DataWranglingFunctions.R")
 
 
 
-dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
+#dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
+dt1 <- fread("E:\\Code\\data_challenge_2017\\data\\data.csv")
 dt1<-dt1[,-c("ID","V1")]
 
 ################################################################################
@@ -120,12 +123,9 @@ vModelGBM <- funcCrossValGBM(dtIn=dt1,
 ################################################################################
 ############################### Model Evaluation ###############################
 ################################################################################
-#vModelBN$predicted <- vModelBN$probabilities
-vModelRF$predicted <- vModelRF$probabilities
-vModelSVM$predicted <- vModelSVM$probabilities
+plot(vModelReg$trueValues,vModelReg$predicted); cor.test(vModelReg$trueValues,vModelReg$predicted); sqrt(mean((vModelReg$trueValues-vModelReg$predicted)^2))
+plot(vModelSVM$trueValues,vModelSVM$predicted); cor.test(vModelSVM$trueValues,vModelSVM$predicted); sqrt(mean((vModelSVM$trueValues-vModelSVM$predicted)^2))
+plot(vModelRF$trueValues,vModelRF$predicted); cor.test(vModelRF$trueValues,vModelRF$predicted); sqrt(mean((vModelRF$trueValues-vModelRF$predicted)^2))
+plot(vModelGBM$trueValues,vModelGBM$predicted); cor.test(vModelGBM$trueValues,vModelGBM$predicted); sqrt(mean((vModelGBM$trueValues-vModelGBM$predicted)^2))
 
-vReg.Stat <- funcStatOutput(listModel=vModelReg,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.748431)
-#vBN.Stat <- funcStatOutput(listModel=vModelBN,valPositive=2,valNegative=1,bNumeric=T,threshType=3)
-vSVM.Stat <- funcStatOutput(listModel=vModelSVM,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.5209497)
-vRF.Stat <- funcStatOutput(listModel=vModelRF,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=0.5298393)
-vGBM.Stat <- funcStatOutput(listModel=vModelGBM,valPositive=2,valNegative=1,bNumeric=T,threshType=3)#,valThresh=1.513645)
+

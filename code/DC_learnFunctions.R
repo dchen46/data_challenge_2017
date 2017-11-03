@@ -71,17 +71,17 @@ funcCrossValRF = function(dtIn, vDependentVars,vPredictorVars,nFolds, bOversampl
     dt.test = dtIn[indSamp,]
     ### fit the model on the training data
     rf.model <- ranger(cForm, data = dt.training, num.trees=300,
-                       importance="impurity", probability = T)
+                       importance="impurity")
     
     ###predict each dependent variable, given all the parents
     cPredicted <- predict(rf.model, data=dt.test)#
-    vPredicted <- rep(colnames(cPredicted$predictions)[1],nrow(dt.test))
-    vPredicted[cPredicted$predictions[,1]<cPredicted$predictions[,2]] <- "yes"
+    vPredicted <- cPredicted$predictions
+    
     
     vRF.predicted[[kFold]] <- rf.model
     #vTestInd[[kFold]] <- dt.test.this[,]
     causal[indStart:indEnd] <- vPredicted
-    probs[indStart:indEnd] <- cPredicted$predictions[,2]
+    probs[indStart:indEnd] <- vPredicted
     vTest[indStart:indEnd] <- dt.test[,get(vDependentVars)]
     
   }
