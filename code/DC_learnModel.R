@@ -1,4 +1,4 @@
-rm(list=ls(all=TRUE))
+rm(list=ls(all=TRUE)) # remove all variables
 library(data.table)
 library(survival)
 library(DMwR)
@@ -13,33 +13,40 @@ library(e1071)
 library(PresenceAbsence)
 library(FSelector)
 library(corrgram)
-
-#source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R")
-#source("H:\\Work\\R\\DataWranglingFunctions.R")
-source("E:\\Code\\data_challenge_2017\\code\\DC_learnFunctions.R")
-source("E:\\Work\\R\\DataWranglingFunctions.R")
+library(grf) #causal forest
+library(causaldrf) #bart
+library(mlegp) #gaussian process
 
 
+### Load some functions 
+source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R") #functions for learning
+source("H:\\Work\\R\\DataWranglingFunctions.R") #functions to clean and modify data
+#source("E:\\Code\\data_challenge_2017\\code\\DC_learnFunctions.R")
+#source("E:\\Work\\R\\DataWranglingFunctions.R")
 
-#dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
-dt1 <- fread("E:\\Code\\data_challenge_2017\\data\\data.csv")
-dt1<-dt1[,-c("ID","V1")]
+
+
+### reading data
+dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
+#dt1 <- fread("E:\\Code\\data_challenge_2017\\data\\data.csv")
+dt1<-dt1[,-c("ID","V1")] # removes the row ids
 
 ################################################################################
 ################################## Variables ###################################
 ################################################################################
-vDependentVars <- "Y" 
+vDependentVars <- "Y" #dependent variable
 vPredictorVars <- c("A","W1","W2","W3","W4","W5","W6","W7","W8","W9","W10","W11",
                     "W12","W13","W14","W15","W16","W17","W18","W19","W20","W21",
-                    "W22","W23","W24","W25")
-vFac <- c("A","W1","W2","W3","W4","W5","W6")
+                    "W22","W23","W24","W25") #list of predictor vars
+vFac <- c("A","W1","W2","W3","W4","W5","W6") #categorical predictor vars
 vNum <- c("W7","W8","W9","W10","W11","W12","W13","W14","W15","W16","W17","W18",
-          "W19","W20","W21","W22","W23","W24","W25")
+          "W19","W20","W21","W22","W23","W24","W25") #numerical predictor vars
 vPredictorVarsSVM <- c("A","W5","W6","W7","W8","W9","W10","W11","W12","W13",
-                       "W14","W15","W16","W17","W18","W19","W20","W21","W22",
-                       "W23","W24","W25","W1.A","W1.B","W1.C","W1.D","W2.A",
-                       "W2.B","W2.C","W2.D","W3.A","W3.B","W3.C","W4.A",
-                       "W4.B","W4.C")
+                  "W14","W15","W16","W17","W18","W19","W20","W21","W22","W23",
+                  "W24","W25","W1.A","W1.B","W1.C","W1.D","W2.A","W2.B","W2.C",
+                  "W2.D","W3.A","W3.B","W3.C","W4.A","W4.B","W4.C") #normalized variables
+vFacSVM <- c("A","W1.A","W1.B","W1.C","W1.D","W2.A","W2.B","W2.C","W2.D","W3.A",
+             "W3.B","W3.C","W4.A","W4.B","W4.C","W5","W6") #categorical predictor vars
 
 ### Factorize data
 for (kVar in vFac) {
@@ -57,9 +64,22 @@ dt1N <- funcBinaryFactorize(dtIn=dt1N,
 ################################################################################
 ############################### Basic Statistics ###############################
 ################################################################################
-funcOddsRatio(dt1[,3:29,with=F], dt1[,A]==1)
-vGainRatios <- gain.ratio(as.formula(paste(vDependentVars,"~ .")),dt1)
+#correlation matrix
+vCorMat <- cor(dt1[,c(1,9:27),with=F])
+vCor <- findCorrelation(vCorMat, cutoff=0.5)
 
+#function that measures odds ratio/p-value
+funcOddsRatio(dt1[,3:29,with=F], dt1[,A]==1)
+#function that measures gain ratios
+vGainRatios <- gain.ratio(as.formula(paste(vDependentVars,"~ .")),dt1)
+### Plot some stuff
+#vInfoGain <- information.gain(as.formula(paste(vDependentVars,"~ .")),dt1.imp)
+#p <- ggplot(data=data.frame(names=names(dt2)[1:68],gain.ratio=vGainRatios[,"attr_importance"]), 
+#            aes(x=names, y=gain.ratio)) +
+#  geom_bar(stat="identity")
+#p + theme(axis.text.x = element_text(angle=90, hjust=1))
+
+### fits single variable linear model across all variables
 vCoefEstimate <- numeric(length(vPredictorVars))
 vPValue <- numeric(length(vPredictorVars))
 k <-1
@@ -70,16 +90,8 @@ for (kVar in vPredictorVars) {
   vPValue[k] <- coef(summary(cModel))[2,4]
   k <- k+1
 }
-a <- data.table(variable=vPredictorVars,coef=vCoefEstimate,significance=vPValue)
-print(a)
-
-### Plot some stuff
-#vInfoGain <- information.gain(as.formula(paste(vDependentVars,"~ .")),dt1.imp)
-#p <- ggplot(data=data.frame(names=names(dt2)[1:68],gain.ratio=vGainRatios[,"attr_importance"]), 
-#            aes(x=names, y=gain.ratio)) +
-#  geom_bar(stat="identity")
-#p + theme(axis.text.x = element_text(angle=90, hjust=1))
-
+dtLinearStats <- data.table(variable=vPredictorVars,coef=vCoefEstimate,significance=vPValue)
+print(dtLinearStats)
 
 ### correlations of the continuous data
 corrgram(dt1, order=TRUE, lower.panel=panel.ellipse,

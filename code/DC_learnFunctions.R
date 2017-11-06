@@ -4,32 +4,32 @@
 
 
 funcCrossValRF = function(dtIn, vDependentVars,vPredictorVars,nFolds, bOversample = T) {
-  ######################### Cross-validate random forest #########################
-  # Splits the data into multiple samples for cross-validation. At each fold, a
-  # BayesNet is built. If there are too many independent variables for
-  # the number of observations supplied, tikhonov regularization can be used to
-  # reduce the dimensionality of the dataset.
-  #
-  # Inputs:
-  # dt: data.table of the data
-  # vDependentVars: list of column names in dt that are dependent variables
-  # vPredictorsVars: list of column names in dt that may explain dependent
-  #                     variables. Can be a list of list for multiple levels.
-  #                     List has to be in reverse temporal order. The first
-  #                     element are potential parents of the dependent variables
-  #                         vPredictorVars[[n]][1...k]
-  #                                   ...
-  #                         vPredictorVars[[2]][1...k]
-  #                         vPredictorVars[[1]][1...k]
-  #                               vDependentVars
-  # nFolds: num of subsamples
-  # valAlpha: type 1 error threshold
-  # bPenalize: boolean used to do ridge regression
-  # bFitLocal: fit local neighborhood around each node
-  #
-  # Outputs:
-  # bnOut: bn object which includes the network
-  ################################################################################
+######################### Cross-validate random forest #########################
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# BayesNet is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# valAlpha: type 1 error threshold
+# bPenalize: boolean used to do ridge regression
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
   
   ### initialize empty vectors/matrices for later use
   nObs <- nrow(dtIn)
@@ -97,30 +97,30 @@ funcCrossValRF = function(dtIn, vDependentVars,vPredictorVars,nFolds, bOversampl
 
 
 funcCrossValGBM = function(dtIn,vDependentVars,vPredictorVars,nFolds, bOversample = T) {
-  ############## Cross-validate gradient boosted regression models ###############
-  # Splits the data into multiple samples for cross-validation. At each fold, a
-  # GBM is built. If there are too many independent variables for
-  # the number of observations supplied, tikhonov regularization can be used to
-  # reduce the dimensionality of the dataset.
-  #
-  # Inputs:
-  # dt: data.table of the data
-  # vDependentVars: list of column names in dt that are dependent variables
-  # vPredictorsVars: list of column names in dt that may explain dependent
-  #                     variables. Can be a list of list for multiple levels.
-  #                     List has to be in reverse temporal order. The first
-  #                     element are potential parents of the dependent variables
-  #                         vPredictorVars[[n]][1...k]
-  #                                   ...
-  #                         vPredictorVars[[2]][1...k]
-  #                         vPredictorVars[[1]][1...k]
-  #                               vDependentVars
-  # nFolds: num of subsamples
-  # bFitLocal: fit local neighborhood around each node
-  #
-  # Outputs:
-  # bnOut: bn object which includes the network
-  ################################################################################
+############## Cross-validate gradient boosted regression models ###############
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# GBM is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
   
   ### initialize empty vectors/matrices for later use
   nObs <- nrow(dtIn)
@@ -193,30 +193,30 @@ funcCrossValGBM = function(dtIn,vDependentVars,vPredictorVars,nFolds, bOversampl
 
 
 funcCrossValSVM = function(dtIn,vDependentVars,vPredictorVars,nFolds, bOversample = T) {
-  ################# Cross-validate support vector machine models #################
-  # Splits the data into multiple samples for cross-validation. At each fold, a
-  # SVM is built. If there are too many independent variables for
-  # the number of observations supplied, tikhonov regularization can be used to
-  # reduce the dimensionality of the dataset.
-  #
-  # Inputs:
-  # dt: data.table of the data
-  # vDependentVars: list of column names in dt that are dependent variables
-  # vPredictorsVars: list of column names in dt that may explain dependent
-  #                     variables. Can be a list of list for multiple levels.
-  #                     List has to be in reverse temporal order. The first
-  #                     element are potential parents of the dependent variables
-  #                         vPredictorVars[[n]][1...k]
-  #                                   ...
-  #                         vPredictorVars[[2]][1...k]
-  #                         vPredictorVars[[1]][1...k]
-  #                               vDependentVars
-  # nFolds: num of subsamples
-  # bFitLocal: fit local neighborhood around each node
-  #
-  # Outputs:
-  # bnOut: bn object which includes the network
-  ################################################################################
+################# Cross-validate support vector machine models #################
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# SVM is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
   
   ### initialize empty vectors/matrices for later use
   nObs <- nrow(dtIn)
@@ -288,32 +288,32 @@ funcCrossValSVM = function(dtIn,vDependentVars,vPredictorVars,nFolds, bOversampl
 
 funcCrossValReg = function(dtIn, vDependentVars, vPredictorVars,
                            nFolds = 10, bOversample = T) {
-  ########################### Cross-validate bayes net ###########################
-  # Splits the data into multiple samples for cross-validation. At each fold, a
-  # BayesNet is built. If there are too many independent variables for
-  # the number of observations supplied, tikhonov regularization can be used to
-  # reduce the dimensionality of the dataset.
-  #
-  # Inputs:
-  # dt: data.table of the data
-  # vDependentVars: list of column names in dt that are dependent variables
-  # vPredictorsVars: list of column names in dt that may explain dependent
-  #                     variables. Can be a list of list for multiple levels.
-  #                     List has to be in reverse temporal order. The first
-  #                     element are potential parents of the dependent variables
-  #                         vPredictorVars[[n]][1...k]
-  #                                   ...
-  #                         vPredictorVars[[2]][1...k]
-  #                         vPredictorVars[[1]][1...k]
-  #                               vDependentVars
-  # nFolds: num of subsamples
-  # valAlpha: type 1 error threshold
-  # bPenalize: boolean used to do ridge regression
-  # bFitLocal: fit local neighborhood around each node
-  #
-  # Outputs:
-  # bnOut: bn object which includes the network
-  ################################################################################
+########################## Cross-validate Regression ###########################
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# BayesNet is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# valAlpha: type 1 error threshold
+# bPenalize: boolean used to do ridge regression
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
   
   
   ### initialize empty vectors/matrices for later use
@@ -365,6 +365,236 @@ funcCrossValReg = function(dtIn, vDependentVars, vPredictorVars,
       cModel <- glm(formula = cForm, data = dt.training, family = "gaussian")
     }, error = function(e) {
       print("Error glm")
+    })
+    
+    if (inherits(possibleError, "error")) {
+      causal[indStart:indEnd,] <- numeric(nrow(dt.test))
+      vTest[indStart:indEnd,] <- dt.test[,get(vDependentVars)]
+      cModel <- NULL
+      next
+    }
+    
+    
+    ###predict each dependent variable, given all the parents
+    vModels.predicted[[kFold]] <- cModel
+    #vTestInd[[kFold]] <- dt.test.this[,]
+    causal[indStart:indEnd] <- predict(cModel, newdata=dt.test)
+    vTest[indStart:indEnd] <- dt.test[,get(vDependentVars)]
+  } #end of kFold crossval
+  
+  ### overall cross-validated correlations
+  #for (kDepVar in vDependentVars) {
+  #  if (class(dt[,get(kDepVar)])=="factor") {
+  #    dfTmp <- data.frame(a1=causal[,kDepVar], a2=dt[vIndObs, get(kDepVar)])
+  #    tab <- xtabs(~a1+a2, data = dfTmp)
+  #    predcor[kDepVar] <- vcd::assocstats(tab)$cramer
+  #  } else {
+  #    predcor[kDepVar] <- cor(causal[,kDepVar], dt[vIndObs, get(kDepVar)])
+  #  }
+  #}
+  
+  return(list(predicted = causal,
+              models = vModels.predicted,
+              trueValues = vTest))
+} #end of funcCrossVal
+
+
+
+funcCrossValBART = function(dtIn, vDependentVars, vTreatmentVars, vConfounderVars, 
+                      est="add", nFolds = 10, bOversample = T) {
+############################# Cross-validate BART ##############################
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# BayesNet is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# valAlpha: type 1 error threshold
+# bPenalize: boolean used to do ridge regression
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
+  
+  
+  ### initialize empty vectors/matrices for later use
+  nObs <- nrow(dtIn)
+  vAllVars <- c(vDependentVars, unlist(vPredictorVars))
+  vPredictorVars <- unique(unlist(vPredictorVars))
+  
+  #dtIn[,(vDependentVars):=as.factor(dtIn[,get(vDependentVars)])]
+  
+  # initialize outputs
+  causal <- rep(0, times = nObs)
+  probs <- rep(0, times = nObs)
+  vTest <- rep(0, times = nObs)
+  vModels.predicted <- vector("list",nFolds)
+  
+  
+  # shuffle the data to get unbiased splits
+  vTestInd <- createFolds(dtIn[,get(vDependentVars)], k = nFolds, list = TRUE)
+  indStart <- 1
+  indEnd <- 0
+  
+  ############################## cross validation ##############################
+  for (kFold in seq_len(nFolds)) {
+    print(c("KFOLD: ",kFold))
+    ### shuffle the data to get unbiased splits
+    indSamp <- vTestInd[[kFold]]
+    indStart <- indEnd + 1
+    indEnd <- indEnd + length(indSamp)
+    
+    ### split training and test
+    dt.training = dtIn[-indSamp,]
+    if (length(vPredictorVars)==1) {
+      cForm <- as.formula(paste(vDependentVars,' ~ ', c(vTreatmentVars,vConfounderVars)))
+      cFormTreat <- as.formula(paste(vTreatmentVars,' ~ ', vConfounderVars))
+    } else {
+      cForm <- as.formula(paste(vDependentVars,' ~ ', paste(c(vTreatmentVars, unique(unlist(vConfounderVars))),collapse = " + ")))
+      cFormTreat <- as.formula(paste(vTreatmentVars,' ~ ', paste(unique(unlist(vConfounderVars)),collapse = " + ")))
+    }
+    if (bOversample) {
+      nObsTrain <- as.integer(nrow(dt.training)/2)
+      perOver <- nObsTrain/table(dt.training[,get(vDependentVars)])[2]*100
+      #perUnder <- table(dt.training[,get(vDependentVars)])[1]/nObsTrain*100
+      dt.training <- SMOTE(form = cForm,
+                           data = dt.training,
+                           perc.over=perOver,
+                           perc.under=100)
+    }
+    dt.test = dtIn[indSamp,]
+    ### fit the model on the training data,
+    possibleError <- tryCatch({
+      if (type == "add") {
+        cModel <- add_spl_est(Y = dt.training[,get(vDependentVars)],
+                              treat = dt.training[,get(vTreatmentVars)], 
+                              treat_formula = cFormTreat,
+                              data = dt.training, 
+                              grid_val = seq(0,1),
+                              knot_num = 3,
+                              treat_mod= "Normal")  
+      } else if (type == "aipwee") {
+        cModel <- aipwee_est(Y = dt.training[,get(vDependentVars)],
+                             treat = dt.training[,get(vTreatmentVars)], 
+                             covar_formula = ~ 1,
+                             covar_lin_formula = ~ 1,
+                             covar_sq_formula = ~ 1,
+                             data = dt.training, 
+                             e_treat_1 = NULL,
+                             e_treat_2 = NULL,
+                             e_treat_3 = NULL,
+                             e_treat_4 = NULL,
+                             degree = 1,
+                             wt = NULL,
+                             method = "same",
+                             spline_df = NULL,
+                             spline_const = 1,
+                             spline_linear = 1,
+                             spline_quad = 1)
+      } else if (type == "bart") {
+        cModel <- bart_est(Y = dt.training[,get(vDependentVars)],
+                           treat = dt.training[,get(vTreatmentVars)], 
+                           outcome_formula = cFormTreat,
+                           data = dt.training, 
+                           grid_val = seq(0,1)) 
+      } else if (type == "gam") {
+        cModel <- gam_est(Y = dt.training[,get(vDependentVars)],
+                          treat = dt.training[,get(vTreatmentVars)],
+                          treat_formula = cFormTreat,
+                          data = dt.training,
+                          grid_val = seq(0,1),
+                          treat_mod= "Normal")  
+      } else if (type == "hi") {
+        cModel <- hi_est(Y = dt.training[,get(vDependentVars)],
+                         treat = dt.training[,get(vTreatmentVars)], 
+                         treat_formula = cFormTreat,
+                         outcome_formula = cForm,
+                         data = dt.training, 
+                         grid_val = seq(0,1),
+                         treat_mod= "Normal") 
+      } else if (type == "iptw") {
+        cModel <- iptw_est(Y = dt.training[,get(vDependentVars)],
+                           treat = dt.training[,get(vTreatmentVars)], 
+                           treat_formula = cFormTreat,
+                           numerator_formula = NULL,
+                           data = dt.training, 
+                           treat_mod= "Normal") 
+      } else if (type == "ismw") {
+        cModel <- ismw_est(Y = dt.training[,get(vDependentVars)],
+                           treat = dt.training[,get(vTreatmentVars)], 
+                           data = dt.training, 
+                           e_treat_1 = NULL,
+                           e_treat_2 = NULL,
+                           e_treat_3 = NULL,
+                           e_treat_4 = NULL,
+                           degree = 1) 
+      } else if (type == "iw") {
+        cModel <- iw_est(Y = dt.training[,get(vDependentVars)],
+                         treat = dt.training[,get(vTreatmentVars)],
+                         treat_formula = cFormTreat,
+                         data = dt.training, 
+                         grid_val = seq(0,1),
+                         bandw = NULL,
+                         treat_mod= "Normal") 
+      } else if (type == "nw") {
+        cModel <- nw_est(Y = dt.training[,get(vDependentVars)],
+                         treat = dt.training[,get(vTreatmentVars)],
+                         treat_formula = cFormTreat,
+                         data = dt.training, 
+                         grid_val = seq(0,1),
+                         bandw = NULL,
+                         treat_mod= "Normal") 
+      } else if (type == "prop") {
+        cModel <- prop_spline_est(Y = dt.training[,get(vDependentVars)],
+                          treat = dt.training[,get(vTreatmentVars)], 
+                          covar_formula = ~ 1,
+                          covar_lin_formula = ~ 1,
+                          covar_sq_formula = ~ 1,
+                          data = dt.training, 
+                          degree = 1,
+                          wt = NULL,
+                          method = "same",
+                          spline_df = NULL,
+                          spline_const = 1,
+                          spline_linear = 1,
+                          spline_quad = 1)
+      } else if (type == "reg") {
+        cModel <- reg_est(Y = dt.training[,get(vDependentVars)],
+                          treat = dt.training[,get(vTreatmentVars)], 
+                          covar_formula = cFormTreat,
+                          covar_lin_formula = NULL,
+                          covar_sq_formula = NULL,
+                          data = dt.training, 
+                          degree = 1,
+                          wt = NULL,
+                          method = "same") 
+      } else if (type == "wtrg") {
+        cModel <- wtrg_est(Y = dt.training[,get(vDependentVars)],
+                           treat = dt.training[,get(vTreatmentVars)],
+                           covar_formula = cFormTreat,
+                           data = dt.training,
+                           e_treat_1 = ,
+                           e_treat_2 = ,
+                           e_treat_3 = ,
+                           e_treat_4 = ,
+                           degree = 1) 
+      }
+      
+    }, error = function(e) {
+      print("Error BART")
     })
     
     if (inherits(possibleError, "error")) {
