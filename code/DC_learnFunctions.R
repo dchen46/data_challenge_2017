@@ -96,6 +96,111 @@ funcCrossValRF = function(dtIn, vDependentVars,vPredictorVars,nFolds, bOversampl
 
 
 
+
+funcCrossValCRF = function(dtIn, vDependentVars,vTreatmentVars,vConfounderVars,
+                           nFolds, bOversample = T) {
+######################### Cross-validate random forest #########################
+# Splits the data into multiple samples for cross-validation. At each fold, a
+# BayesNet is built. If there are too many independent variables for
+# the number of observations supplied, tikhonov regularization can be used to
+# reduce the dimensionality of the dataset.
+#
+# Inputs:
+# dt: data.table of the data
+# vDependentVars: list of column names in dt that are dependent variables
+# vPredictorsVars: list of column names in dt that may explain dependent
+#                     variables. Can be a list of list for multiple levels.
+#                     List has to be in reverse temporal order. The first
+#                     element are potential parents of the dependent variables
+#                         vPredictorVars[[n]][1...k]
+#                                   ...
+#                         vPredictorVars[[2]][1...k]
+#                         vPredictorVars[[1]][1...k]
+#                               vDependentVars
+# nFolds: num of subsamples
+# valAlpha: type 1 error threshold
+# bPenalize: boolean used to do ridge regression
+# bFitLocal: fit local neighborhood around each node
+#
+# Outputs:
+# bnOut: bn object which includes the network
+################################################################################
+  
+  ### initialize empty vectors/matrices for later use
+  nObs <- nrow(dtIn)
+  
+  # initialize intermediate variables
+  # initialize outputs
+  causal <- rep(0, times = nObs)
+  conf.int <- rep(0, times = nObs)
+  probs <- rep(0, times = nObs)
+  vTest <- rep(0, times = nObs)
+  vRF.predicted <- vector("list",nFolds)
+  
+  # shuffle the data to get unbiased splits
+  vTestInd <- createFolds(dtIn[,get(vDependentVars)], k = nFolds, list = TRUE)
+  indStart <- 1
+  indEnd <- 0
+  
+  cForm <- as.formula(paste(vDependentVars," ~ ", 
+                            paste(c(vTreatmentVars,
+                                    unique(unlist(vConfounderVars))),
+                                  collapse = "+")))
+  
+  for (kFold in seq(nFolds)) {
+    print(c("KFOLD: ",kFold))
+    ### shuffle the data to get unbiased splits
+    indSamp <- vTestInd[[kFold]]
+    indStart <- indEnd + 1
+    indEnd <- indEnd + length(indSamp)
+    
+    ### split training and test
+    dt.training = dtIn[-indSamp,]
+    if (bOversample) {
+      nObsTrain <- as.integer(nrow(dt.training)/2)
+      perOver <- nObsTrain/table(dt.training[,get(vDependentVars)])[2]*100
+      #perUnder <- table(dt.training[,get(vDependentVars)])[1]/nObsTrain*100
+      dt.training <- SMOTE(form = cForm,
+                           data = dt.training,
+                           perc.over=perOver,
+                           perc.under=100)
+    }
+    dt.test = dtIn[indSamp,]
+    ### fit the model on the training data
+    rf.model <- causal_forest(dt.training[,vConfounderVars], 
+                              dt.training[,vDependentVars],
+                              dt.training[,vTrainingVars],
+                              num.trees=300)
+    rf.model2 <- causal_forest(dt.training[,vConfounderVars], 
+                              dt.training[,vDependentVars],
+                              dt.training[,vTrainingVars],
+                              num.trees=4000)
+
+    ###predict each dependent variable, given all the parents
+    cPredicted <- predict(rf.model, dt.test[,vConfounderVars])#
+    vPredicted <- cPredicted$predictions
+    cPredicted <- predict(rf.model2, dt.test[,vConfounderVars], estimate.variance=T)#
+    vPredicted.ConfInt <- cPredicted$variance.estimates
+    
+    
+    vRF.predicted[[kFold]] <- rf.model
+    conf.int[[kFold]] <- vPredicted.ConfInt
+    causal[indStart:indEnd] <- vPredicted
+    probs[indStart:indEnd] <- vPredicted
+    vTest[indStart:indEnd] <- dt.test[,get(vDependentVars)]
+    
+  }
+  
+  return(list(predicted = causal,
+              probabilities = probs,
+              confidence.int = conf.int,
+              models = vRF.predicted,
+              trueValues = vTest))
+}
+############################ End of funcCrossValCRF ############################
+
+
+
 funcCrossValGBM = function(dtIn,vDependentVars,vPredictorVars,nFolds, bOversample = T) {
 ############## Cross-validate gradient boosted regression models ###############
 # Splits the data into multiple samples for cross-validation. At each fold, a
@@ -722,3 +827,4 @@ funcStatOutput <- function(listModel, valPositive=T, valNegative=F,
 
 
 ############################### End of Functions ###############################
+
