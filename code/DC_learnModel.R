@@ -17,19 +17,16 @@ library(grf) #causal forest
 library(causaldrf) #bart
 library(mlegp) #gaussian process
 
-
-### Load some functions 
-source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R") #functions for learning
-source("H:\\Work\\R\\DataWranglingFunctions.R") #functions to clean and modify data
-#source("E:\\Code\\data_challenge_2017\\code\\DC_learnFunctions.R")
-#source("E:\\Work\\R\\DataWranglingFunctions.R")
+#source("H:\\projects\\data_challenge_2017\\code\\DC_learnFunctions.R")
+#source("H:\\Work\\R\\DataWranglingFunctions.R")
+source("~/projects/data_challenge_2017/code/DC_learnFunctions.R")
+source("~/work/MyWork/R/DataWranglingFunctions.R")
 
 
+#dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
+dt1 <- fread("~/projects/data_challenge_2017/data/data.csv")
+dt1<-dt1[,-c("ID","V1")]
 
-### reading data
-dt1 <- fread("H:\\projects\\data_challenge_2017\\data\\data.csv")
-#dt1 <- fread("E:\\Code\\data_challenge_2017\\data\\data.csv")
-dt1<-dt1[,-c("ID","V1")] # removes the row ids
 
 ################################################################################
 ################################## Variables ###################################
