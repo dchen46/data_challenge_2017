@@ -1,0 +1,118 @@
+---
+title: "Gaussian Process with Automatic Relevance Determination in Stan"
+author: "Patrick Wilson"
+date: "11/19/2017"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(rstan)
+library(bayesplot)
+library(loo)
+
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+```
+
+
+#Bring data in
+```{r}
+# link to data on GitHub page if not available
+if(file.exists("Data.csv")) {
+  Dat <- read.csv("Data.csv")
+} else {
+  urlfile <- "https://raw.githubusercontent.com/ecpolley/Data_Challenge_2017/master/Data.csv"
+  download.file(urlfile, destfile = "Data.csv")
+  Dat <- read.csv("Data.csv")
+}
+dim(Dat)
+
+```
+
+#Turn data into list for Stan output, Old code not cleaned up yet
+
+```{r}
+make_inds <- function(df, cols=names(df))
+{
+  # do each variable separately to get around model.matrix dropping aliased columns
+  do.call(cbind, c(df, lapply(cols, function(n) {
+    x <- df[[n]]
+    mm <- model.matrix(~ x - 1)
+    colnames(mm) <- gsub("^x", paste(n, "_", sep=""), colnames(mm))
+    as.data.frame(mm)
+  })))
+}
+
+myVectorOfStrings <- c("dayofweek", "referral.type", "pt.payer.group.tier.1", "pt.rst.geo.zone.group", "visit.type")
+appt_cancel_cov <-select(appt_cancel, one_of(myVectorOfStrings)) %>%
+  make_inds() %>%
+  select(-one_of(myVectorOfStrings))%>%
+  cbind(appt_cancel$no.) %>%
+  rename(no. = `appt_cancel$no.`) %>%
+  inner_join(appt_split_clean, ., by="no.") %>%
+  select(-dayofweek_Wednesday, -`referral.type_Internal Provider   `, 
+         -`pt.payer.group.tier.1_Non-Government`, -pt.rst.geo.zone.group_NATIONAL, -visit.type_Consult)
+
+
+
+
+#Set up your stan list data
+matchExpression <- paste(myVectorOfStrings, collapse = "|")
+X <- select(appt_cancel_train, matches(matchExpression)) %>%
+  as.matrix()
+
+
+
+#1/3 data.
+stanlist_train <-list(N =nrow(appt_cancel_train),
+                      K = dim(X)[2], 
+                      dim_x_1 = dim_x_1,
+                      dim_x_2 = dim_x_2,
+                      x_1 = x_1,
+                      x_2 = x_2,
+                      X = X,
+                      #Q_ast = Q,
+                      #R_ast = R,
+                      y =appt_cancel_train$event_cancel, 
+                      row_i =appt_cancel_train$interval_y,
+                      col_j =appt_cancel_train$interval_x)
+
+
+```
+
+
+
+#Run Stan Code, Old code not cleaned up
+```{r}
+
+poisson <- stan_model("poisson.stan")
+fit_poisson<- sampling(poisson, 
+                           data = list(N= N, y = y), 
+                           iter = 1000,
+                           chains = 4,
+                           seed=11122017, 
+                           refresh=1000)
+
+
+# Extract posterior draws for later use
+color_scheme_set("darkgray")
+posterior <- as.array(fit_poisson)
+#mcmc_trace(posterior)
+print(fit_poisson, pars = c("mu"))
+
+
+
+ypred <-as.data.frame(fit_poisson) %>% 
+        select(contains("ypred")) %>%
+        sample_n(50) %>% 
+        as.matrix()
+
+dim(ypred)
+ppc_dens_overlay(y, ypred)
+
+ppc_hist(y, ypred[1:5, ])
+
+```
+
+
