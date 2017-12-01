@@ -23,7 +23,7 @@ functions {
 data {
   int<lower=1> N;
   int<lower=1> D;
-  vector[D] x[N];
+  vector[D] x[N]; //https://groups.google.com/forum/#!topic/stan-users/hExhol5V-qE
   vector[N] y;
 }
 transformed data {

@@ -2,8 +2,18 @@
 title: "Gaussian Process with Automatic Relevance Determination in Stan"
 author: "Patrick Wilson"
 date: "11/19/2017"
-output: html_document
+output:
+  html_document:
+    fig_caption: yes
+    theme: spacelab 
+    highlight: pygments
+    toc: TRUE
+    toc_depth: 2
+    number_sections: TRUE
+    toc_float:
+      smooth_scroll: FALSE
 ---
+
 
 ```{r message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -30,7 +40,7 @@ dim(Dat)
 
 ```
 
-#Turn data into list for Stan output, Old code not cleaned up yet
+#Turn data into list for Stan output
 
 ```{r}
 make_inds <- function(df, cols=names(df))
@@ -44,74 +54,71 @@ make_inds <- function(df, cols=names(df))
   })))
 }
 
-myVectorOfStrings <- c("dayofweek", "referral.type", "pt.payer.group.tier.1", "pt.rst.geo.zone.group", "visit.type")
-appt_cancel_cov <-select(appt_cancel, one_of(myVectorOfStrings)) %>%
+myVectorOfStrings <- c("W1", "W2", "W3", "W4")
+Dat_cov <-select(Dat, one_of(myVectorOfStrings)) %>%
   make_inds() %>%
   select(-one_of(myVectorOfStrings))%>%
-  cbind(appt_cancel$no.) %>%
-  rename(no. = `appt_cancel$no.`) %>%
-  inner_join(appt_split_clean, ., by="no.") %>%
-  select(-dayofweek_Wednesday, -`referral.type_Internal Provider   `, 
-         -`pt.payer.group.tier.1_Non-Government`, -pt.rst.geo.zone.group_NATIONAL, -visit.type_Consult)
+  cbind(Dat$ID) %>%
+  rename(ID = `Dat$ID`) %>%
+  inner_join(Dat, ., by="ID") %>%
+  select(-one_of(myVectorOfStrings), -W1_C,  -W2_A,  -W3_C,  -W4_A)
 
 
 
 
 #Set up your stan list data
-matchExpression <- paste(myVectorOfStrings, collapse = "|")
-X <- select(appt_cancel_train, matches(matchExpression)) %>%
+X <- select(Dat_cov, -X, -Y, -ID) %>%
   as.matrix()
 
+stanlist_small <-list(N =nrow(Dat_cov),
+                      D = 3,
+                      x = X[,c('A','W13','W12')],
+                      y =Dat_cov$Y)
 
+stanlist_mod <-list(N =nrow(Dat_cov),
+                      D = 15,
+                      x = X[,c(1, 7:10, 23:32)],
+                      y =Dat_cov$Y)
 
-#1/3 data.
-stanlist_train <-list(N =nrow(appt_cancel_train),
-                      K = dim(X)[2], 
-                      dim_x_1 = dim_x_1,
-                      dim_x_2 = dim_x_2,
-                      x_1 = x_1,
-                      x_2 = x_2,
-                      X = X,
-                      #Q_ast = Q,
-                      #R_ast = R,
-                      y =appt_cancel_train$event_cancel, 
-                      row_i =appt_cancel_train$interval_y,
-                      col_j =appt_cancel_train$interval_x)
-
+stanlist <-list(N =nrow(Dat_cov),
+                      D = dim(X)[2],
+                      x = X,
+                      y =Dat_cov$Y)
 
 ```
 
 
 
-#Run Stan Code, Old code not cleaned up
+#Run Stan Code, Try Smaller models first
 ```{r}
 
-poisson <- stan_model("poisson.stan")
-fit_poisson<- sampling(poisson, 
-                           data = list(N= N, y = y), 
+gp_ard <- stan_model("gp_ard.stan")
+
+
+#Meh
+fit_gp_small<- optimizing(gp_ard, 
+                           data = stanlist_small,
+                           seed=11122017)
+
+fit_gp_small<- sampling(gp_ard, 
+                           data = stanlist_small, 
                            iter = 1000,
                            chains = 4,
-                           seed=11122017, 
-                           refresh=1000)
+                           seed=11122017)
 
 
-# Extract posterior draws for later use
-color_scheme_set("darkgray")
-posterior <- as.array(fit_poisson)
-#mcmc_trace(posterior)
-print(fit_poisson, pars = c("mu"))
+fit_gp_mod<- sampling(gp_ard, 
+                           data = stanlist_mod, 
+                           iter = 1000,
+                           chains = 4,
+                           seed=11122017)
 
+fit_gp_ard<- sampling(gp_ard, 
+                           data = stanlist, 
+                           iter = 1000,
+                           chains = 4,
+                           seed=11122017)
 
-
-ypred <-as.data.frame(fit_poisson) %>% 
-        select(contains("ypred")) %>%
-        sample_n(50) %>% 
-        as.matrix()
-
-dim(ypred)
-ppc_dens_overlay(y, ypred)
-
-ppc_hist(y, ypred[1:5, ])
 
 ```
 
